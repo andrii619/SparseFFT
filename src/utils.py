@@ -111,12 +111,12 @@ def nth_element_immutable(x, n):
 
 
 
-def get_expermient_vs_N_parameters(N, WITH_COMB):
+def get_expermient_vs_N_parameters(N, ALG_TYPE):
 	
 	params = {}
 	
 	if(N == 8192):
-		if(WITH_COMB):
+		if(ALG_TYPE == 2): # sFFT 2.0
 			##Bcst_loc =  2; Bcst_est =  2; Comb_cst = 32; comb_loops =8; est_loops =16; loc_loops =7; threshold_loops =6; tolerance_loc =1e-8; tolerance_est =1e-8;
 			params['Bcst_loc'] = 2
 			params['Bcst_est'] = 2
@@ -127,7 +127,7 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 			params['threshold_loops'] = 6
 			params['tolerance_loc'] = 1e-8
 			params['tolerance_est'] = 1e-8
-		else:
+		else: # sFFT 1.0
 			##Bcst_loc =2; Bcst_est =  2; Comb_cst =1; comb_loops =1; est_loops =16; loc_loops =7; threshold_loops =6; tolerance_loc =1e-8; tolerance_est =1e-8;
 			params['Bcst_loc'] = 2
 			params['Bcst_est'] = 2
@@ -137,11 +137,11 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 			params['loc_loops'] = 7
 			params['threshold_loops'] = 6
 			params['tolerance_loc'] = 1e-8
-			params['tolerance_loc'] = 1e-8
+			params['tolerance_est'] = 1e-8
 		
 		
 	elif(N == 16384):
-		if(WITH_COMB):
+		if(ALG_TYPE == 2):
 			##Bcst_loc =  4; Bcst_est =  4; Comb_cst = 32; comb_loops =8; est_loops =10; loc_loops =6; threshold_loops =5; tolerance_loc =1e-8; tolerance_est =1e-8;
 			params['Bcst_loc'] = 4
 			params['Bcst_est'] = 4
@@ -165,7 +165,7 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 			##Bcst_loc =4; Bcst_est =  4; Comb_cst =1; comb_loops =1; est_loops =10; loc_loops =6; threshold_loops =5; tolerance_loc =1e-8; tolerance_est =1e-8;
 		
 	elif(N == 32768):
-		if(WITH_COMB):
+		if(ALG_TYPE == 2):
 			##Bcst_loc =  4; Bcst_est =  2; Comb_cst = 64; comb_loops =4; est_loops = 8; loc_loops =5; threshold_loops =4; tolerance_loc =1e-8; tolerance_est =1e-8;
 			params['Bcst_loc'] = 4
 			params['Bcst_est'] = 2
@@ -175,7 +175,7 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 			params['loc_loops'] = 5
 			params['threshold_loops'] = 4
 			params['tolerance_loc'] = 1e-8
-			params['tolerance_loc'] = 1e-8
+			params['tolerance_est'] = 1e-8
 			
 		else:
 			##Bcst_loc =4; Bcst_est =  2; Comb_cst =1; comb_loops =1; est_loops = 8; loc_loops =5; threshold_loops =4; tolerance_loc =1e-8; tolerance_est =1e-8;
@@ -191,7 +191,7 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 		
 		
 	elif(N == 65536):
-		if(WITH_COMB):
+		if(ALG_TYPE == 2):
 			##Bcst_loc =  4; Bcst_est =  2; Comb_cst =128; comb_loops =6; est_loops =10; loc_loops =4; threshold_loops =2; tolerance_loc =1e-8; tolerance_est =1e-8;
 			params['Bcst_loc'] = 4
 			params['Bcst_est'] = 2
@@ -201,7 +201,7 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 			params['loc_loops'] = 4
 			params['threshold_loops'] = 2
 			params['tolerance_loc'] = 1e-8
-			params['tolerance_loc'] = 1e-8
+			params['tolerance_est'] = 1e-8
 		else:
 			##Bcst_loc =4; Bcst_est =  2; Comb_cst =1; comb_loops =1; est_loops = 8; loc_loops =5; threshold_loops =4; tolerance_loc =1e-8; tolerance_est =1e-8;
 			params['Bcst_loc'] = 4
@@ -215,7 +215,7 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 			params['tolerance_est'] = 1e-8
 		
 	elif(N == 131072):
-		if(WITH_COMB):
+		if(ALG_TYPE == 2):
 			params['Bcst_loc'] = 1
 			params['Bcst_est'] = 1
 			params['Comb_cst'] = 8
@@ -224,7 +224,7 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 			params['loc_loops'] = 4
 			params['threshold_loops'] = 3
 			params['tolerance_loc'] = 1e-6
-			params['tolerance_loc'] = 1e-8
+			params['tolerance_est'] = 1e-8
 			##Bcst_loc =  1; Bcst_est =  1; Comb_cst =  8; comb_loops =2; est_loops =12; loc_loops =4; threshold_loops =3; tolerance_loc =1e-6; tolerance_est =1e-8;
 			
 			
@@ -243,7 +243,7 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 		
 		
 	elif(N == 262144):
-		if(WITH_COMB):
+		if(ALG_TYPE == 2):
 			##Bcst_loc =  1; Bcst_est =  1; Comb_cst =  8; comb_loops =2; est_loops =14; loc_loops =5; threshold_loops =4; tolerance_loc =1e-6; tolerance_est =1e-8;
 			params['Bcst_loc'] = 1
 			params['Bcst_est'] = 1
@@ -253,7 +253,7 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 			params['loc_loops'] = 5
 			params['threshold_loops'] = 4
 			params['tolerance_loc'] = 1e-6
-			params['tolerance_loc'] = 1e-8
+			params['tolerance_est'] = 1e-8
 			
 		else:
 			##Bcst_loc =2; Bcst_est =0.5; Comb_cst =1; comb_loops =1; est_loops =14; loc_loops =4; threshold_loops =3; tolerance_loc =1e-6; tolerance_est =1e-8;
@@ -270,7 +270,7 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 		
 	elif(N == 524288):
 		
-		if(WITH_COMB):
+		if(ALG_TYPE == 2):
 			##Bcst_loc =0.5; Bcst_est =0.5; Comb_cst =  8; comb_loops =1; est_loops =10; loc_loops =4; threshold_loops =3; tolerance_loc =1e-6; tolerance_est =1e-8;
 			params['Bcst_loc'] = 0.5
 			params['Bcst_est'] = 0.5
@@ -280,7 +280,7 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 			params['loc_loops'] = 4
 			params['threshold_loops'] = 3
 			params['tolerance_loc'] = 1e-6
-			params['tolerance_loc'] = 1e-8
+			params['tolerance_est'] = 1e-8
 			
 			
 		else:
@@ -298,7 +298,7 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 		
 	elif(N == 1048576):
 		
-		if(WITH_COMB):
+		if(ALG_TYPE == 2):
 			##Bcst_loc =0.5; Bcst_est =0.5; Comb_cst =  8; comb_loops =2; est_loops =12; loc_loops =4; threshold_loops =2; tolerance_loc =1e-6; tolerance_est =1e-8;
 			params['Bcst_loc'] = 0.5
 			params['Bcst_est'] = 0.5
@@ -308,7 +308,7 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 			params['loc_loops'] = 4
 			params['threshold_loops'] = 2
 			params['tolerance_loc'] = 1e-6
-			params['tolerance_loc'] = 1e-8
+			params['tolerance_est'] = 1e-8
 		else:
 			##Bcst_loc =2; Bcst_est =0.5; Comb_cst =1; comb_loops =1; est_loops =12; loc_loops =4; threshold_loops =3; tolerance_loc =1e-6; tolerance_est =1e-8;
 			params['Bcst_loc'] = 2
@@ -324,7 +324,7 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 		
 	elif(N == 2097152):
 		
-		if(WITH_COMB):
+		if(ALG_TYPE == 2):
 			##Bcst_loc =0.5; Bcst_est =0.2; Comb_cst =  8; comb_loops =1; est_loops =10; loc_loops =3; threshold_loops =2; tolerance_loc =1e-6; tolerance_est =1e-8;
 			params['Bcst_loc'] = 0.5
 			params['Bcst_est'] = 0.2
@@ -334,7 +334,7 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 			params['loc_loops'] = 3
 			params['threshold_loops'] = 2
 			params['tolerance_loc'] = 1e-6
-			params['tolerance_loc'] = 1e-8
+			params['tolerance_est'] = 1e-8
 			
 		else:
 			##Bcst_loc =2; Bcst_est =0.2; Comb_cst =1; comb_loops =1; est_loops =15; loc_loops =3; threshold_loops =2; tolerance_loc =1e-6; tolerance_est =1e-8;
@@ -350,7 +350,7 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 		
 	elif(N == 4194304):
 		
-		if(WITH_COMB):
+		if(ALG_TYPE == 2):
 			##Bcst_loc =0.5; Bcst_est =0.2; Comb_cst =  8; comb_loops =1; est_loops = 8; loc_loops =3; threshold_loops =2; tolerance_loc =1e-6; tolerance_est =1e-8;
 			params['Bcst_loc'] = 0.5
 			params['Bcst_est'] = 0.2
@@ -360,7 +360,7 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 			params['loc_loops'] = 3
 			params['threshold_loops'] = 2
 			params['tolerance_loc'] = 1e-6
-			params['tolerance_loc'] = 1e-8
+			params['tolerance_est'] = 1e-8
 			
 			
 		else:
@@ -377,7 +377,7 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 		
 	elif(N == 8388608):
 		
-		if(WITH_COMB):
+		if(ALG_TYPE == 2):
 			##Bcst_loc =0.5; Bcst_est =0.2; Comb_cst =  8; comb_loops =1; est_loops = 8; loc_loops =3; threshold_loops =2; tolerance_loc =1e-6; tolerance_est =1e-8;
 			params['Bcst_loc'] = 0.5
 			params['Bcst_est'] = 0.2
@@ -387,7 +387,7 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 			params['loc_loops'] = 3
 			params['threshold_loops'] = 2
 			params['tolerance_loc'] = 1e-6
-			params['tolerance_loc'] = 1e-8
+			params['tolerance_est'] = 1e-8
 			
 			
 		else:
@@ -406,7 +406,7 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 		
 	elif(N == 16777216):
 		
-		if(WITH_COMB):
+		if(ALG_TYPE == 2):
 			##Bcst_loc =0.5; Bcst_est =0.2; Comb_cst = 16; comb_loops =1; est_loops = 8; loc_loops =3; threshold_loops =2; tolerance_loc =1e-6; tolerance_est =1e-8;
 			params['Bcst_loc'] = 0.5
 			params['Bcst_est'] = 0.2
@@ -416,7 +416,7 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 			params['loc_loops'] = 3
 			params['threshold_loops'] = 2
 			params['tolerance_loc'] = 1e-6
-			params['tolerance_loc'] = 1e-8
+			params['tolerance_est'] = 1e-8
 			
 		else:
 			##Bcst_loc =4; Bcst_est =0.2; Comb_cst =1; comb_loops =1; est_loops = 8; loc_loops =3; threshold_loops =2; tolerance_loc =1e-6; tolerance_est =1e-8;
@@ -451,13 +451,13 @@ def get_expermient_vs_N_parameters(N, WITH_COMB):
 
 
 
-def get_expermient_vs_K_parameters(K, WITH_COMB):
+def get_expermient_vs_K_parameters(K, ALG_TYPE):
 	
 	params= {}
 	
 	if(K == 50):
 		
-		if(WITH_COMB):
+		if(ALG_TYPE == 2):
 			#Bcst_loc =0.5; Bcst_est =0.2; Comb_cst = 16; comb_loops =1; est_loops =10; loc_loops =3; threshold_loops =2; tolerance_loc =1e-6; tolerance_est =1.0e-8;
 			params['Bcst_loc'] = 0.5
 			params['Bcst_est'] = 0.2
@@ -488,7 +488,7 @@ def get_expermient_vs_K_parameters(K, WITH_COMB):
 	elif(K == 100):
 		
 		
-		if(WITH_COMB):
+		if(ALG_TYPE == 2):
 			##Bcst_loc =0.5; Bcst_est =0.2; Comb_cst = 16; comb_loops =1; est_loops =12; loc_loops =4; threshold_loops =2; tolerance_loc =1e-6; tolerance_est =1.0e-8;
 			params['Bcst_loc'] = 0.5
 			params['Bcst_est'] = 0.2
@@ -518,7 +518,7 @@ def get_expermient_vs_K_parameters(K, WITH_COMB):
 	elif(K == 200):
 		
 		
-		if(WITH_COMB):
+		if(ALG_TYPE == 2):
 			##Bcst_loc =  0.5; Bcst_est =  0.5; Comb_cst = 32; comb_loops =1; est_loops = 8; loc_loops =4; threshold_loops =3; tolerance_loc =1e-6; tolerance_est =0.5e-8;
 			params['Bcst_loc'] = 0.5
 			params['Bcst_est'] = 0.5
@@ -547,7 +547,7 @@ def get_expermient_vs_K_parameters(K, WITH_COMB):
 	elif(K == 500):
 		
 		
-		if(WITH_COMB):
+		if(ALG_TYPE == 2):
 			##Bcst_loc =0.5; Bcst_est =0.5; Comb_cst = 64; comb_loops =1; est_loops =10; loc_loops =4; threshold_loops =3; tolerance_loc =1e-6; tolerance_est =0.5e-8;
 			params['Bcst_loc'] = 0.5
 			params['Bcst_est'] = 0.5
@@ -575,7 +575,7 @@ def get_expermient_vs_K_parameters(K, WITH_COMB):
 		
 	elif(K == 1000):
 		
-		if(WITH_COMB):
+		if(ALG_TYPE == 2):
 			##Bcst_loc =  1; Bcst_est =  1; Comb_cst =128; comb_loops =3; est_loops =12; loc_loops =4; threshold_loops =3; tolerance_loc =1e-6; tolerance_est =0.5e-8;
 			params['Bcst_loc'] = 1
 			params['Bcst_est'] = 1
@@ -605,7 +605,7 @@ def get_expermient_vs_K_parameters(K, WITH_COMB):
 	elif(K == 2000):
 		
 		
-		if(WITH_COMB):
+		if(ALG_TYPE == 2):
 			
 			##Bcst_loc =  1; Bcst_est =  1; Comb_cst =512; comb_loops =3; est_loops =16; loc_loops =4; threshold_loops =3; tolerance_loc =1e-7; tolerance_est =0.2e-8;
 			params['Bcst_loc'] = 1
@@ -634,7 +634,7 @@ def get_expermient_vs_K_parameters(K, WITH_COMB):
 		
 	elif(K == 2500):
 		
-		if(WITH_COMB):
+		if(ALG_TYPE == 2):
 			
 			##Bcst_loc =  1; Bcst_est =  1; Comb_cst =512; comb_loops =3; est_loops =16; loc_loops =4; threshold_loops =3; tolerance_loc =1e-7; tolerance_est =0.2e-8;
 			params['Bcst_loc'] = 1
@@ -664,7 +664,7 @@ def get_expermient_vs_K_parameters(K, WITH_COMB):
 		
 	elif(K == 4000):
 		
-		if(WITH_COMB):
+		if(ALG_TYPE == 2):
 			##Bcst_loc =  1; Bcst_est =  2; Comb_cst =512; comb_loops =3; est_loops =14; loc_loops =8; threshold_loops =7; tolerance_loc =1e-8; tolerance_est =0.5e-8;
 			params['Bcst_loc'] = 1
 			params['Bcst_est'] = 2
@@ -734,7 +734,7 @@ def generate_random_signal(n, k):
 	
 	x = fftpack.fft(x_f, n)
 	
-	return x, x_f
+	return x, x_f, large_freq
 
 
 

@@ -1,32 +1,66 @@
 
 import argparse
-
+import numpy as np
+from utils import *
 
 # Default parameter values that can be changed via command line
 
 GRAPH_TYPE = 1
-REPETITIONS = 10
+REPETITIONS = 1
 VERBOSE = True
 ALG_TYPE = 1
 
 
 
-BCST_LOC = 1
-BCST_EST = 1
-COMB_CST = 2
-LOC_LOOPS = 4
-EST_LOOPS = 16
-THRESHOLD_LOOPS = 3
-COMB_LOOPS = 1
-TOLERANCE_LOC = 1e-8
-TOLERANCE_EST = 1e-8
-SNR = 100
+#BCST_LOC = 1
+#BCST_EST = 1
+#COMB_CST = 2
+#LOC_LOOPS = 4
+#EST_LOOPS = 16
+#THRESHOLD_LOOPS = 3
+#COMB_LOOPS = 1
+#TOLERANCE_LOC = 1e-8
+#TOLERANCE_EST = 1e-8
+#SNR = 100
 
 
+
+
+def run_experiment(x,x_f,large_freq,k,n,lobefrac_loc,tolerance_loc,b_loc,B_loc,B_thresh,loc_loops,threshold_loops,lobefrac_est,tolerance_est,
+						b_est,B_est,est_loops,W_Comb,comb_loops):
+	
+	
+	print("0: n: %d" % n)
+	print("1:lobefrac_loc %3.3f" % lobefrac_loc)
+	print("2: tolerance_loc %3.3f" % tolerance_loc)
+	print("3: b_loc %d" % b_loc)
+	print("4: B_loc %d" % B_loc)
+	print("5: B_thresh %d" % B_thresh)
+	print("6: loc_loops %d" % loc_loops)
+	print("7: threshold_loops %d" % threshold_loops)
+	print("8: lobefrac_est %3.3f" % lobefrac_est)
+	print("9: tolerance_est %3.3f" % tolerance_est)
+	print("10: b_est %d" % b_est)
+	print("11: B_est %d" % B_est)
+	print("12: est_loops %d" % est_loops)
+	print("13: W_Comb %d" % W_Comb)
+	print("14: Comb_loops %d" % comb_loops)
+	print("15: k %d" % k)
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 
 
 def main():
+	global GRAPH_TYPE, REPETITIONS, ALG_TYPE, VERBOSE
+	
 	
 	parser = argparse.ArgumentParser(description='Sparse fft')
 	##parser.add_argument('-h','--help', help='Print Help', required=False)
@@ -86,10 +120,10 @@ def main():
 		
 	
 	
-	##N_vec = np.array([8192, 16384, 32768, 65536, 131072, 262144,  524288, 1048576, 2097152, 4194304, 8388608, 16777216])
-	N_vec = np.array([8192, 16384, 32768])
-	K_vec = np.array([50, 100, 200, 500, 1000, 2000, 2500, 4000])
-	SNR_vec[14] = np.array([-20, -10, -7, -3, 0, 3, 7, 10, 20, 30, 40, 50, 60, 120])
+	N_vec = np.array([8192, 16384, 32768, 65536, 131072, 262144,  524288, 1048576, 2097152, 4194304, 8388608, 16777216], dtype=np.int)
+	##N_vec = np.array([8192, 16384, 32768])
+	K_vec = np.array([50, 100, 200, 500, 1000, 2000, 2500, 4000], dtype=np.int)
+	SNR_vec = np.array([-20, -10, -7, -3, 0, 3, 7, 10, 20, 30, 40, 50, 60, 120])
 	
 	
 	length = 1
@@ -123,7 +157,7 @@ def main():
 			n = 4194304;
 			k = K_vec[i]
 			
-			experiment_parameters = get_expermient_vs_K_parameters(n, ALG_TYPE)
+			experiment_parameters = get_expermient_vs_K_parameters(k, ALG_TYPE)
 			
 			
 			
@@ -131,7 +165,7 @@ def main():
 			n = 4194304
 			k = 50
 			SNR = SNR_vec[i]; 
-			experiment_parameters = get_expermient_vs_N_parameters(n, WITH_COMB)
+			experiment_parameters = get_expermient_vs_N_parameters(n, ALG_TYPE)
 			
 			
 			
@@ -147,8 +181,8 @@ def main():
 		if(experiment_parameters['Comb_cst']):
 			COMB_CST = experiment_parameters['Comb_cst']
 		
-		if(experiment_parameters['Comb_loops']):
-			COMB_LOOPS = experiment_parameters['Comb_loops']
+		if(experiment_parameters['comb_loops']):
+			COMB_LOOPS = experiment_parameters['comb_loops']
 		
 		if(experiment_parameters['est_loops']):
 			EST_LOOPS = experiment_parameters['est_loops']
@@ -166,16 +200,31 @@ def main():
 			TOLERANCE_EST = experiment_parameters['tolerance_est']
 		
 		
+		BB_loc = BCST_LOC*np.sqrt( (n*k) /np.log2(n) ) 
+		BB_est = BCST_EST*np.sqrt( (n*k)/np.log2(n) ) 
+		
+		
+		print("BB_loc: %4.5f" % BB_loc)
+		print("BB_est: %4.5f" % BB_est)
+		
+		
+		LOBEFRAC_LOC = 0.5/BB_loc
+		LOBEFRAC_EST = 0.5/BB_est
+		b_loc = int(1.2*1.1*(n/BB_loc))
+		b_est = int(1.4*1.1*(n/BB_est))
+		
+		B_loc = floor_to_pow2(BB_loc)
+		B_thresh = 2*k
+		B_est = floor_to_pow2(BB_est)
+		
+		W_Comb = floor_to_pow2(COMB_CST*n/B_loc)
 		
 		for j in range(REPETITIONS):
 			
+			x, x_f, large_freq = generate_random_signal(n, k)
 			
-			
-			x, x_f = generate_random_signal(n, k)
-			
-			
-			
-			
+			run_experiment(x,x_f,large_freq,k,n,LOBEFRAC_LOC,TOLERANCE_LOC,b_loc,B_loc,B_thresh,LOC_LOOPS,THRESHOLD_LOOPS,LOBEFRAC_EST,TOLERANCE_EST,
+						b_est,B_est,EST_LOOPS,W_Comb,COMB_LOOPS)
 			
 			
 			

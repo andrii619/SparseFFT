@@ -26,6 +26,16 @@ def hamming_window(length):
 
 
 
+#def I0(x):
+#	ans = 1
+#	curval = 1
+#	for(int L = 1; curval > 0.001; L++)
+#	{
+#		curval = curval * (x / 2)*(x / 2) / L / L;
+#		ans += curval;
+#		//printf("State: %d %lf %lf\n", L, curval, ans);
+#	}
+#	return ans
 
 
 
@@ -40,6 +50,20 @@ def kaiserbessel_window(lobefrac, tolerance):
 	return signal.kaiser(w, beta)
 
 
+
+#def kaiserbessel_window(double lobefrac, double tolerance, int &w):
+#	w = int((1.0 / math.pi) * (1.0/lobefrac) * math.acosh(1.0/tolerance))
+#	B = np.log(1.0/tolerance)
+#	##complex_t *x = (complex_t *)malloc(w*sizeof(*x))
+#	x = np.zeros(w, dtype=complex)
+#	for i in range(w):
+#		tmp = (2.0 * (i - (w-1)/2.0)) / (w - 1)
+#		x[i] = I0(B * math.sqrt(1 - tmp*tmp)) / I0(B)
+#	
+#	return x
+
+
+
 def gaussian_window(lobefrac, tolerance):
 	w = int((2.0 / math.pi) * (1.0/lobefrac) * np.log(1.0/tolerance))
 	std = (w/2.0) / math.sqrt(2.0*np.log(1.0/tolerance))
@@ -47,8 +71,8 @@ def gaussian_window(lobefrac, tolerance):
 	return x
 
 
-def chebyshev_window(lobefrac, tolerance):
-	w = int((1.0 / math.pi) * (1.0/lobefrac) * np.log(1.0/tolerance))
+def chebyshev_window2(lobefrac, tolerance):
+	w = int((1 / math.pi) * (1/lobefrac) * math.acosh(1.0/tolerance))
 	if ((w%2) != 0):
 		w -= 1
 	
@@ -59,6 +83,32 @@ def chebyshev_window(lobefrac, tolerance):
 	return x
 
 
+def Cheb(m, x):
+	if(abs(x) <= 1):
+		return math.cos(m * math.acos(x))
+	else:
+		return (cmath.cosh(m * cmath.acosh(x))).real
+
+
+
+
+def chebyshev_window(lobefrac, tolerance):
+	w = int((1.0 / math.pi) * (1.0/lobefrac) * math.acosh(1.0/tolerance))
+	if (not (w%2)):
+		w -= 1
+	x = np.zeros(w)
+	t0 = math.cosh(math.acosh(1.0/tolerance) / (w-1))
+	for i in range(w):
+		
+		x[i] = Cheb(w-1, t0 * math.cos(math.pi * i / w)) * tolerance
+		
+	
+	x = fftpack.fft(x, w)
+	x = fftpack.fftshift(x)
+	##x = shift(x, w/2)
+	for i in range(w):
+		x[i] = x[i].real
+	return x
 
 
 
@@ -98,63 +148,111 @@ class Filter():
 
 def make_multiple(x, n, b):
 	
-	#n=4096
-	#tol = 1e-9
-	#frac = 0.05
-	#b=32
-	#x = gaussian_window(frac, tol)
-	
+	x = x.astype(complex)
 	w = x.shape[0]
-	
-	h = np.zeros(n)
-	g = np.pad(x, (0, n- w), mode='constant', constant_values=0)
+	h = np.zeros(n, dtype=complex)
+	g = np.pad(x, (0, n- w), mode='constant', constant_values= complex(0.0,0.0))
 	g = left_shift(g, w/2)
-	
 	g = fftpack.fft(g, n)
-	
 	s = np.sum( g[:b])
-	
 	max_g = 0
-	offset = b/2
+	offset = int(b/2)
 	
 	for i in range(n):
-		h[(i + offset)%n] = s
-		max_g = np.maximum(max_g, np.abs(s) )
+		h[(i+n + offset)%n] = s
+		max_g = np.maximum(max_g, abs(s) )
 		s = s + (g[(i + b)%n] - g[i])
 	
-	
 	h = np.divide(h, max_g)
-	
-	
-	
-	offset_c = 1
-	step = np.exp(-2.0*math.pi * complex(0,1) * (w/2) / n)
+	offset_c = complex(1,0)
+	step = cmath.exp(-2.0*math.pi * complex(0,1) * (w/2) / n)
 	
 	for i in range(n):
-		h[i] = np.multiply(h[i], offset_c)
-		offset_c = np.multiply(offset_c, step)
-	
+		h[i] = (h[i] * offset_c)
+		offset_c = (offset_c * step)
 	
 	window = fftpack.fft(h, n)
-	
-	###window[w:n] = 0.0
-	window = np.divide(window, n/2)
-	
+	window = left_shift(window, (n-w))
+	window = np.divide(window, n)
 	x = window[:w]
-	##x = np.pad(x, (0, n- w), mode='constant', constant_values=0)
 	f = Filter(x, h)
 	
-	
-	plt.plot(x)
-	plt.show()
-	
-	
-	plt.plot(h)
-	plt.show()
-	
-	
-	
 	return f
+
+
+
+
+
+
+
+
+
+
+#n = 8192
+#k=50
+#Bcst_loc = 4
+#Bcst_est = 4
+#tolerance_loc = 1e-8
+#tolerance_est = 1e-8
+
+#BB_loc = Bcst_loc*math.sqrt( (n*k) /math.log(n, 2) ) 
+#BB_est = Bcst_est*math.sqrt( (n*k)/math.log(n, 2) ) 
+
+#lobefrac_loc = 0.5/BB_loc
+#lobefrac_est = 0.5/BB_est
+#b_loc = int(1.2*1.1*(n/BB_loc))
+#b_est = int(1.4*1.1*(n/BB_est))
+#b=b_loc
+
+
+#w = int((1.0 / math.pi) * (1.0/lobefrac_loc) * math.acosh(1.0/tolerance_loc))
+
+#filter_loc = chebyshev_window(lobefrac_loc, tolerance_loc)
+#x = filter_loc
+#############################################
+#x = x.astype(complex)
+#w = x.shape[0]
+#h = np.zeros(n, dtype=complex)
+#g = np.pad(x, (0, n- w), mode='constant', constant_values= complex(0.0,0.0))
+#g = left_shift(g, w/2)
+#g = fftpack.fft(g, n)
+#s = np.sum( g[:b])
+#max_g = 0
+#offset = int(b/2)
+
+#for i in range(n):
+#	h[(i+n + offset)%n] = s
+#	max_g = np.maximum(max_g, abs(s) )
+#	s = s + (g[(i + b)%n] - g[i])
+
+#h = np.divide(h, max_g)
+#offset_c = complex(1,0)
+#step = cmath.exp(-2.0*math.pi * complex(0,1) * (w/2) / n)
+
+#for i in range(n):
+#	h[i] = (h[i] * offset_c)
+#	offset_c = (offset_c * step)
+
+#window = fftpack.fft(h, n)
+#window = left_shift(window, (n-w))
+#window = np.divide(window, n)
+#x = window[:w]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

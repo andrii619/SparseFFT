@@ -1,6 +1,7 @@
 
 import argparse
 import numpy as np
+from filters import *
 from utils import *
 
 # Default parameter values that can be changed via command line
@@ -10,7 +11,8 @@ REPETITIONS = 1
 VERBOSE = True
 ALG_TYPE = 1
 
-
+DEBUG = True
+VISUALIZE = True
 
 #BCST_LOC = 1
 #BCST_EST = 1
@@ -29,30 +31,52 @@ ALG_TYPE = 1
 def run_experiment(x,x_f,large_freq,k,n,lobefrac_loc,tolerance_loc,b_loc,B_loc,B_thresh,loc_loops,threshold_loops,lobefrac_est,tolerance_est,
 						b_est,B_est,est_loops,W_Comb,comb_loops):
 	
+	if(DEBUG):
+		print("0: n: %d" % n)
+		print("1:lobefrac_loc %3.3f" % lobefrac_loc)
+		print("2: tolerance_loc %3.3f" % tolerance_loc)
+		print("3: b_loc %d" % b_loc)
+		print("4: B_loc %d" % B_loc)
+		print("5: B_thresh %d" % B_thresh)
+		print("6: loc_loops %d" % loc_loops)
+		print("7: threshold_loops %d" % threshold_loops)
+		print("8: lobefrac_est %3.3f" % lobefrac_est)
+		print("9: tolerance_est %3.3f" % tolerance_est)
+		print("10: b_est %d" % b_est)
+		print("11: B_est %d" % B_est)
+		print("12: est_loops %d" % est_loops)
+		print("13: W_Comb %d" % W_Comb)
+		print("14: Comb_loops %d" % comb_loops)
+		print("15: k %d" % k)
+		print("Lobefrac_loc %3.8f" % lobefrac_loc)
+		print("Lobefrac_est %3.8f" % lobefrac_est)
 	
-	print("0: n: %d" % n)
-	print("1:lobefrac_loc %3.3f" % lobefrac_loc)
-	print("2: tolerance_loc %3.3f" % tolerance_loc)
-	print("3: b_loc %d" % b_loc)
-	print("4: B_loc %d" % B_loc)
-	print("5: B_thresh %d" % B_thresh)
-	print("6: loc_loops %d" % loc_loops)
-	print("7: threshold_loops %d" % threshold_loops)
-	print("8: lobefrac_est %3.3f" % lobefrac_est)
-	print("9: tolerance_est %3.3f" % tolerance_est)
-	print("10: b_est %d" % b_est)
-	print("11: B_est %d" % B_est)
-	print("12: est_loops %d" % est_loops)
-	print("13: W_Comb %d" % W_Comb)
-	print("14: Comb_loops %d" % comb_loops)
-	print("15: k %d" % k)
+	filter_t = chebyshev_window(lobefrac_loc, tolerance_loc)
+	filter_loc = make_multiple(filter_t, n, b_loc)
 	
+	filter_t = chebyshev_window(lobefrac_est, tolerance_est)
+	filter_est = make_multiple(filter_t, n, b_est)
 	
-	
-	
-	
-	
-	
+	if(DEBUG):
+		plt.plot(filter_loc.sig_t)
+		plt.title("Loc filter t %d" %n)
+		plt.show()
+		
+		
+		plt.plot(np.abs(filter_loc.sig_f))
+		plt.title("Loc filter f %d" % n)
+		plt.show()
+		
+		
+		plt.plot(filter_est.sig_t)
+		plt.title("EST filter t %d" % n)
+		plt.show()
+		
+		
+		plt.plot(np.abs(filter_est.sig_f) )
+		plt.title("Est filter f %d" % n)
+		plt.show()
+		
 	
 	
 
@@ -120,8 +144,8 @@ def main():
 		
 	
 	
-	N_vec = np.array([8192, 16384, 32768, 65536, 131072, 262144,  524288, 1048576, 2097152, 4194304, 8388608, 16777216], dtype=np.int)
-	##N_vec = np.array([8192, 16384, 32768])
+	N_vec = np.array([8192, 16384, 32768, 65536], dtype=np.int)
+	#N_vec = np.array([8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304, 8388608, 16777216])
 	K_vec = np.array([50, 100, 200, 500, 1000, 2000, 2500, 4000], dtype=np.int)
 	SNR_vec = np.array([-20, -10, -7, -3, 0, 3, 7, 10, 20, 30, 40, 50, 60, 120])
 	
@@ -204,8 +228,8 @@ def main():
 		BB_est = BCST_EST*np.sqrt( (n*k)/np.log2(n) ) 
 		
 		
-		print("BB_loc: %4.5f" % BB_loc)
-		print("BB_est: %4.5f" % BB_est)
+		#print("BB_loc: %4.5f" % BB_loc)
+		#print("BB_est: %4.5f" % BB_est)
 		
 		
 		LOBEFRAC_LOC = 0.5/BB_loc

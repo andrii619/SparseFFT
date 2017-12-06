@@ -111,17 +111,58 @@ def nth_element_immutable(x, n):
 	return srtd[n]
 
 
+def nth_element(x, n):
+	
+	
+	if(n >= len(x) or n<0):
+		raise Exception('index outside bounds')
+	
+	
+	idx = np.argpartition(x, n)
+	x = x[idx]
+	
+	return x
+
 
 
 def find_largest_indices(num, samples):
-	
-	
 	ind = np.argpartition(samples, -num)[-num:]
-	
-	
-	
+	return ind
 
-
+def find_largest_indices2(num, samples):
+	n = len(samples)
+	cutoff = nth_element_immutable(samples, n-num-1)
+	output = np.zeros(num)
+	
+	count = 0
+	for i in range(n):
+		
+		if (samples[i] > cutoff):
+			
+			output[count] = i
+			count +=1
+		
+	
+	if (count < num):
+		
+		for i in range(n):
+			
+			if (samples[i] == cutoff):
+				
+				output[count] = i
+				count +=1
+				
+				
+				if (count >= num):
+					break
+				
+			
+			
+		
+		output = np.sort(output)
+		
+	
+	return output
 
 
 
@@ -748,17 +789,72 @@ def generate_random_signal(n, k):
 	
 	
 	
-	x = fftpack.fft(x_f, n)
+	x = n*fftpack.ifft(x_f, n)
 	
 	return x, x_f, large_freq
 
 
+def generate_noisy_random_signal(n,k,noise_power):
+	
+	noise = (math.sqrt(2*noise_power)/2.0) * (np.random.rand(n, ) +  1j*np.random.rand(n,) )
+	
+	
+	x_f = np.zeros(n)
+	large_freq = np.random.randint(0, n, k)
+	# generate k random indecies for the sparce k frequencies
+	x_f[large_freq] = 1.0
+	
+	x = n*fftpack.ifft(x_f, n)
+	
+	x= x + noise
+	
+	return x, x_f, large_freq
 
 
+def generate_offgrid_random_signal(n,k, noise_power):
+	
+	noise = (math.sqrt(2*noise_power)/2.0) * (np.random.rand(n, ) +  1j*np.random.rand(n,) )
+	
+	x_f = np.zeros(n)
+	large_freq = np.random.randint(0, n, k)
+	
+	
+	
+	
+	
+	
 
 
-
-
+def AWGN(x, n, std_noise):
+	
+	if(std_noise==0):
+		return 1000000000
+	
+	gn = complex(0,0)
+	
+	sig_power =0
+	noise_power =0
+	snr=0.0
+	u = 0.0
+	v = 0.0
+	
+	for h in range(n):
+		
+		sig_power += abs(x[h])*abs(x[h])
+		
+		u = np.random.rand()
+		v = np.random.rand()
+		gn = std_noise * math.sqrt(-2*math.log(u)) * cmath.exp(2.0*math.pi * 1j * v)
+		noise_power += -2.0*math.log(u)
+		x[h] += gn
+		
+		
+	
+	
+	noise_power = noise_power * std_noise * std_noise
+	snr = sig_power/noise_power
+	
+	return snr
 
 
 

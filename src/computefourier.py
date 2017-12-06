@@ -46,14 +46,14 @@ def Comb_Filt(origx, n, num, W_Comb):
 
 
 
-def inner_loop_locate(origx, n, current_filter, num, B, a, ai, b, J):
-	
+
+def inner_loop_locate(origx, n, current_filter, num, B, a, ai, b):
+	# inner_loop_locate(origx, n, current_filter, num, current_B, a, ai, b)
 	
 	if (n % B):
 		print("Warning: n is not divisible by B")
 	
-	x_sampt = np.zeros(n, dtype = complex)
-	
+	x_sampt = np.zeros(B, dtype = complex)
 	index=b
 	
 	for i in range(current_filter.sig_t.shape[0]):
@@ -63,16 +63,19 @@ def inner_loop_locate(origx, n, current_filter, num, B, a, ai, b, J):
 		
 		
 	
+	#plt.plot(abs(x_sampt))
+	#plt.title("subs t")
+	#plt.show()
 	
-	x_samp = fftpack.fft(x_sampt, B)
 	
-	samples = np.power( np.absolute(x_samp), 2)
+	x_samp_i = fftpack.fft(x_sampt, B)
+	
+	samples = np.power( np.absolute(x_samp_i), 2)
+	
+	plt.plot(samples)
+	plt.show()
 	
 	J = find_largest_indices(num, samples)
-	
-	
-	
-	
 	
 	return x_samp, J
 
@@ -187,14 +190,77 @@ def inner_loop_filter_Comb(J, n, num, B, a, ai, b, loop_threshold, score, hits, 
 
 
 
-
+def estimate_values(hits, hits_found, x_samp, loops, n, permute, B, B2, filter_loc, filter_est, location_loops):
+	
+	ans = {}
+	values = np.zeros((2, loops), dtype=float)
+	
+	
+	
+	
+	for i in range(hits_found):
+		
+		position = 0
+		
+		
+		for j in range(loops):
+			
+			cur_B = 0
+			current_filter = None
+			
+			if(j<location_loops):
+				cur_B = B
+				current_filter = filter_loc
+			else:
+				cur_B = B2
+				current_filter = filter_est
+			
+			
+			permuted_index= ((permute[j] * hits[i]) % n)
+			hashed_to = permuted_index / (n / cur_B)
+			dist = permuted_index % (n / cur_B)
+			
+			if (dist > ((n/cur_B)/2) ):
+				hashed_to = (hashed_to + 1)%cur_B
+				dist -= n/cur_B
+			
+			
+			dist = (n - dist) % n
+			
+			filter_value = current_filter.sig_f[dist]
+			values[0][position] = (x_samp[j][hashed_to] / filter_value).real
+			values[1][position] = (x_samp[j][hashed_to] / filter_value).imag
+			position += 1
+			
+			
+		
+		
+		location = (loops - 1) / 2
+		
+		for a in range(2):
+			
+			values[a] = nth_element(values[a], location)
+			
+		
+		
+		realv = values[0][location]
+		imagv = values[1][location]
+		
+		##ans.append( ( hits[i], complex(realv, imagv) ) )
+		ans[hits[i]] = complex(realv, imagv)
+		
+	
+	
+	
+	return ans
 
 
 
 
 
 def outer_loop(origx,n,filter_loc,filter_est,B2,num,B,W_Comb,Comb_loops,loop_threshold,location_loops,loops, ALG_TYPE):
-	
+	# outer_loop(x, n, filter_loc, filter_est, B_est, B_thresh, B_loc, W_Comb, comb_loops, threshold_loops, loc_loops, loc_loops + est_loops)
+	# outer_loop(x, n, filter, filter_est, B_est, B_thresh, B_loc, W_Comb, Comb_loops, loops_thresh, loops_loc, loops_loc + loops_est)
 	permute  = np.zeros(loops, dtype=int)
 	permuteb = np.zeros(loops, dtype=int)
 	
@@ -293,7 +359,7 @@ def outer_loop(origx,n,filter_loc,filter_est,B2,num,B,W_Comb,Comb_loops,loop_thr
 		
 		###J = np.zeros(num, dtype = int)
 		
-		x_samp_i, J = inner_loop_locate(origx, n, cur_filter,num, cur_B,a, ai, b,x_samp[i], J,PF_T, BC_T)
+		x_samp_i, J = inner_loop_locate(origx, n, current_filter, num, current_B, a, ai, b)
 		x_samp.append(x_samp_i)
 		
 		
@@ -317,9 +383,9 @@ def outer_loop(origx,n,filter_loc,filter_est,B2,num,B,W_Comb,Comb_loops,loop_thr
 	
 	
 	
-	std::map<int, complex_t> ans = estimate_values(hits, hits_found, x_samp,  loops, n, permute, B, B2, filter, filter_Est, location_loops);
+	ans = estimate_values(hits, hits_found, x_samp,  loops, n, permute, B, B2, filter_loc, filter_est, location_loops)
 	
-	
+	return ans
 
 
 

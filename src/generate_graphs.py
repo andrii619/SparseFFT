@@ -31,6 +31,11 @@ VISUALIZE = True
 def run_experiment(x,x_f,large_freq,k,n,lobefrac_loc,tolerance_loc,b_loc,B_loc,B_thresh,loc_loops,threshold_loops,lobefrac_est,tolerance_est,
 						b_est,B_est,est_loops,W_Comb,comb_loops):
 	
+	
+	#run_experiment(x,x_f,large_freq,k,n,LOBEFRAC_LOC,TOLERANCE_LOC,b_loc,B_loc,B_thresh,LOC_LOOPS,THRESHOLD_LOOPS,LOBEFRAC_EST,TOLERANCE_EST,
+	#					b_est,B_est,EST_LOOPS,W_Comb,COMB_LOOPS)
+	
+	
 	if(DEBUG):
 		print("0: n: %d" % n)
 		print("1:lobefrac_loc %3.3f" % lobefrac_loc)
@@ -80,7 +85,7 @@ def run_experiment(x,x_f,large_freq,k,n,lobefrac_loc,tolerance_loc,b_loc,B_loc,B
 	
 	
 	
-	ans = outer_loop(x, n, filter_loc, filter_est, B_est, B_thresh, B_loc, W_Comb, Comb_loops, threshold_loops, loc_loops, loc_loops + est_loops)
+	ans = outer_loop(x, n, filter_loc, filter_est, B_est, B_thresh, B_loc, W_Comb, comb_loops, threshold_loops, loc_loops, loc_loops + est_loops, ALG_TYPE)
 	
 	
 
@@ -167,6 +172,7 @@ def main():
 	fft_times = np.zeros(length)
 	sFFT_errors = np.zeros(length)
 	
+	snr = 100
 	
 	for i in range(length):
 		
@@ -192,7 +198,7 @@ def main():
 		else:
 			n = 4194304
 			k = 50
-			SNR = SNR_vec[i]; 
+			snr = SNR_vec[i]; 
 			experiment_parameters = get_expermient_vs_N_parameters(n, ALG_TYPE)
 			
 			
@@ -250,6 +256,17 @@ def main():
 		for j in range(REPETITIONS):
 			
 			x, x_f, large_freq = generate_random_signal(n, k)
+			
+			if(GRAPH_TYPE == 3):
+				
+				std_noise = math.sqrt(k/(2.0*math.pow(10,snr/10)))
+				snr_achieved = AWGN(x, n, std_noise)
+				x_f = fftpack.fft(x, n)/n
+				###x_f = x_f[::-1]
+				###x_f = np.divide(x_f, n)
+				
+				
+			
 			
 			run_experiment(x,x_f,large_freq,k,n,LOBEFRAC_LOC,TOLERANCE_LOC,b_loc,B_loc,B_thresh,LOC_LOOPS,THRESHOLD_LOOPS,LOBEFRAC_EST,TOLERANCE_EST,
 						b_est,B_est,EST_LOOPS,W_Comb,COMB_LOOPS)

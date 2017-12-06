@@ -13,7 +13,11 @@ def gcd(a, b):
 	return fractions.gcd(a,b)
 
 
-def extended_euclid(a,b):
+
+
+
+
+def ExtendedEuclid(a,b):
 	if(b==0):
 		return a,1,0
 	else:
@@ -105,6 +109,18 @@ def nth_element_immutable(x, n):
 	srtd = x[idx]
 	
 	return srtd[n]
+
+
+
+
+def find_largest_indices(num, samples):
+	
+	
+	ind = np.argpartition(samples, -num)[-num:]
+	
+	
+	
+
 
 
 

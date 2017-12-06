@@ -79,6 +79,10 @@ def run_experiment(x,x_f,large_freq,k,n,lobefrac_loc,tolerance_loc,b_loc,B_loc,B
 		
 	
 	
+	
+	ans = outer_loop(x, n, filter_loc, filter_est, B_est, B_thresh, B_loc, W_Comb, Comb_loops, threshold_loops, loc_loops, loc_loops + est_loops)
+	
+	
 
 
 

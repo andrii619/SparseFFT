@@ -31,7 +31,7 @@ GENERATE_PLOTS = True
 
 
 def run_experiment(x,x_f,large_freq,k,n,lobefrac_loc,tolerance_loc,b_loc,B_loc,B_thresh,loc_loops,threshold_loops,lobefrac_est,tolerance_est,
-						b_est,B_est,est_loops,W_Comb,comb_loops):
+						b_est,B_est,est_loops,W_Comb,comb_loops, snr):
 	
 	
 	#run_experiment(x,x_f,large_freq,k,n,LOBEFRAC_LOC,TOLERANCE_LOC,b_loc,B_loc,B_thresh,LOC_LOOPS,THRESHOLD_LOOPS,LOBEFRAC_EST,TOLERANCE_EST,
@@ -163,26 +163,37 @@ def run_experiment(x,x_f,large_freq,k,n,lobefrac_loc,tolerance_loc,b_loc,B_loc,B
 		
 		plt.subplot(2, 2, 2)
 		plt.title("DFT Signal")
-		plt.plot(abs(x_f))
+		plt.plot(abs(x_f), linewidth=0.3)
 		
 		plt.subplot(2, 2, 3)
 		plt.title("Sparce FFT of The Signal")
-		plt.plot(abs(ans_Large))
+		plt.plot(abs(ans_Large), linewidth=0.3)
 		
 		plt.subplot(2, 2, 4)
 		plt.title("Error Vector")
 		plt.plot(err_vec)
 		
-		plt.suptitle("Sparse FFT: N=" + str(n)+", k=" +str(k))
+		
+		if(GRAPH_TYPE != 3):
+			plt.suptitle("Sparse FFT: N=" + str(n)+", k=" +str(k))
+		else:
+			plt.suptitle("Sparse FFT: N=" + str(n)+", k=" +str(k) + ", SNR = " + str(snr)+ " dB")
+		
 		plt.show()
 		
 		
 		
 		
+		
+		
+		
+		
+		
+	
+	ERROR = ERROR/k
 	
 	
-	
-	return t
+	return t, ERROR
 
 
 
@@ -250,7 +261,7 @@ def main():
 	
 	N_vec = np.array([8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576], dtype=np.int)
 	#N_vec = np.array([8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304, 8388608, 16777216])
-	K_vec = np.array([50, 100, 200, 500, 1000, 2000, 2500, 4000], dtype=np.int)
+	K_vec = np.array([50, 100, 200, 500, 1000, 2000], dtype=np.int)
 	SNR_vec = np.array([-20, -10, -7, -3, 0, 3, 7, 10, 20, 30, 40, 50, 60, 120])
 	
 	
@@ -265,7 +276,7 @@ def main():
 	
 	sFFT_times = np.zeros(length)
 	fft_times = np.zeros(length)
-	###sFFT_errors = np.zeros(length)
+	sFFT_errors = np.zeros(length)
 	
 	snr = 100
 	
@@ -283,8 +294,8 @@ def main():
 			
 			
 		elif(GRAPH_TYPE == 2):
-			#n = 4194304
-			n = 131072
+			n = 1048576
+			#n = 131072
 			k = K_vec[i]
 			
 			experiment_parameters = get_expermient_vs_K_parameters(k, ALG_TYPE)
@@ -292,8 +303,8 @@ def main():
 			
 			
 		else:
-			#n = 4194304
-			n = 65536
+			n = 262144
+			##n = 65536
 			k = 50
 			snr = SNR_vec[i]
 			experiment_parameters = get_expermient_vs_N_parameters(n, ALG_TYPE)
@@ -366,7 +377,7 @@ def main():
 				x_f = fftpack.fft(x, n)/n
 				###x_f = x_f[::-1]
 				###x_f = np.divide(x_f, n)
-				print("SNR %d" %snr)
+				print("SNR %d dB" %snr)
 				print("SNR achieved %4.9f" % snr_achieved)
 				
 				
@@ -383,11 +394,12 @@ def main():
 			print("")
 			print("-------------------------------------------------------------------------")
 			
-			sfft_time = run_experiment(x,x_f,large_freq,k,n,LOBEFRAC_LOC,TOLERANCE_LOC,b_loc,B_loc,B_thresh,LOC_LOOPS,THRESHOLD_LOOPS,LOBEFRAC_EST,TOLERANCE_EST,
-						b_est,B_est,EST_LOOPS,W_Comb,COMB_LOOPS)
+			sfft_time, error = run_experiment(x,x_f,large_freq,k,n,LOBEFRAC_LOC,TOLERANCE_LOC,b_loc,B_loc,B_thresh,LOC_LOOPS,THRESHOLD_LOOPS,LOBEFRAC_EST,TOLERANCE_EST,
+						b_est,B_est,EST_LOOPS,W_Comb,COMB_LOOPS, snr)
 			
 			
-			
+			sFFT_times[i] +=sfft_time
+			sFFT_errors[i] += error
 			
 			print("Sfft time: %4.9f" % sfft_time)
 			print("FFT Time: %4.9f" % fft_time)
@@ -409,8 +421,69 @@ def main():
 		
 	
 	
-	
+	sFFT_errors = sFFT_errors/ REPETITIONS
 	fft_times = fft_times / REPETITIONS
+	sFFT_times = sFFT_times /REPETITIONS
+	
+	if(GRAPH_TYPE == 1):
+		
+		plt.plot(N_vec, sFFT_errors)
+		plt.ylabel("Error")
+		plt.xlabel("N")
+		plt.yscale('log')
+		plt.title("Error vs N, k=50")
+		plt.show()
+		
+		
+		plt.plot(N_vec, sFFT_times, label="Sparse FFT runtime")
+		plt.plot( N_vec, fft_times, label = "FFT runtimes")
+		plt.title("Sparse FFT vs FFT Run Times, K = 50")
+		plt.ylabel("Runtime (sec)")
+		plt.xlabel("N")
+		plt.legend()
+		plt.show()
+		
+		
+	elif(GRAPH_TYPE == 2):
+		
+		plt.plot(K_vec, sFFT_errors)
+		plt.yscale('log')
+		plt.ylabel("Error")
+		plt.xlabel("K")
+		plt.title("Error vs K, N = 1048576")
+		plt.show()
+		
+		
+		plt.plot(K_vec, sFFT_times, label="Sparse FFT runtime")
+		plt.plot( K_vec, fft_times, label = "FFT runtimes")
+		plt.title("Sparse FFT vs FFT Run Times, N=1048576")
+		plt.ylabel("Runtime (sec)")
+		plt.xlabel("K")
+		plt.legend()
+		plt.show()
+		
+		
+		
+	else:
+		
+		plt.plot(SNR_vec, sFFT_errors)
+		plt.yscale('log')
+		plt.ylabel("Error")
+		plt.xlabel("SNR dB")
+		plt.title("Error vs SNR dB, N=262144, k=50")
+		plt.show()
+		
+		
+		plt.plot(SNR_vec, sFFT_times, label="Sparse FFT runtime")
+		plt.plot( SNR_vec, fft_times, label = "FFT runtimes")
+		plt.title("Sparse FFT vs FFT Run Times, N = 262144, k = 50")
+		plt.ylabel("Runtime (sec)")
+		plt.xlabel("SNR dB")
+		plt.legend()
+		plt.show()
+		
+		
+		
 	
 	
 	

@@ -61,6 +61,9 @@ def inner_loop_locate(origx, n, current_filter, num, B, a, ai, b):
 	
 	x_samp_i = fftpack.fft(x_sampt, B)
 	samples = np.power( np.absolute(x_samp_i), 2)
+	
+	###print("num %d, samples len %d" %(num, len(samples)))
+	
 	J = find_largest_indices(num, samples)
 	return x_samp_i, J
 

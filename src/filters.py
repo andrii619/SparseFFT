@@ -153,7 +153,11 @@ def make_multiple(x, n, b):
 	h = np.zeros(n, dtype=complex)
 	g = np.pad(x, (0, n- w), mode='constant', constant_values= complex(0.0,0.0))
 	g = left_shift(g, w/2)
+	
+	
+	
 	g = fftpack.fft(g, n)
+	
 	s = np.sum( g[:b])
 	max_g = 0
 	offset = int(b/2)
@@ -171,9 +175,24 @@ def make_multiple(x, n, b):
 		h[i] = (h[i] * offset_c)
 		offset_c = (offset_c * step)
 	
-	window = fftpack.fft(h, n)
-	window = left_shift(window, (n-w))
-	window = np.divide(window, n)
+	
+	window = fftpack.fft(h, n)/n
+	window = window[::-1]
+	window = np.roll(window, 1)
+	
+	
+	#plt.plot(abs(window))
+	#plt.show()
+	
+	#for l in range(n):
+	#	
+	#	print("g[%d] = %3.8f" % (l, window[l].real))
+	#	
+	
+	
+	####window = window[::-1]
+	###window = left_shift(window, (n-w-1))
+	###window = np.divide(window, n)
 	x = window[:w]
 	f = Filter(x, h)
 	
@@ -239,6 +258,28 @@ def make_multiple(x, n, b):
 #x = window[:w]
 
 
+
+n = 8192
+k=10
+Bcst_loc =2
+tolerance_loc =1e-8
+BB_loc = math.floor( Bcst_loc*np.sqrt( (n*k) /np.log2(n) ) )
+lobefrac_loc = 0.5/BB_loc
+filter_t = chebyshev_window(lobefrac_loc, tolerance_loc)
+w_loc = filter_t.shape[0]
+
+b_loc = int(1.2*1.1*(n/BB_loc))
+
+
+filter_loc = make_multiple(filter_t, n, b_loc)
+
+#plt.plot(abs(filter_loc.sig_t))
+#plt.show()
+
+for l in range(w_loc):
+	
+	print("filt[%d] = %3.8f" %(l, filter_loc.sig_t[l].real*1000.0))
+	
 
 
 

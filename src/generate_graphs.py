@@ -91,6 +91,7 @@ def run_experiment(x,x_f,large_freq,k,n,lobefrac_loc,tolerance_loc,b_loc,B_loc,B
 	
 	
 	
+	
 	num_candidates = len(ans)
 	candidates = np.zeros((num_candidates, 2))
 	x_f_Large = np.zeros(n, dtype=complex)
@@ -98,14 +99,25 @@ def run_experiment(x,x_f,large_freq,k,n,lobefrac_loc,tolerance_loc,b_loc,B_loc,B
 	counter = 0
 	ERROR = 0.0
 	
-	for key in ans:
+	for key in sorted(ans.iterkeys()):
 		
 		value = ans[key]
 		
-		candidates[counter][0] = abs(key)
-		candidates[counter][1] = abs(value)
+		#print("Key: %d" % key)
+		#print("Val: %3.5f " % abs(ans[key]))
 		
+		candidates[counter][1] = int(key)
+		candidates[counter][0] = abs(value)
 		counter += 1
+		
+	
+	for l in range(counter):
+		
+		key = candidates[l][1]
+		value = candidates[l][0]
+		#print("candidates[%d][key] = %d" % (l,key))
+		#print("candidates[%d][val] = %3.5f " % (l, value))
+	
 	
 	
 	for i in range(k):
@@ -113,12 +125,22 @@ def run_experiment(x,x_f,large_freq,k,n,lobefrac_loc,tolerance_loc,b_loc,B_loc,B
 	
 	
 	
-	idx_largest = find_largest_indices(k, candidates[:,1])
-	keys = np.array(candidates[idx_largest][:,0], dtype=int)
-	values = candidates[idx_largest][:,1]
+	tmp = np.argpartition(candidates[:,0], num_candidates-k)
+	candidates = candidates[tmp]
 	
-	for key in keys:
+	for l in range(k):
+		
+		key = int(candidates[num_candidates - k + l][1])
 		ans_Large[key] = ans[key]
+	
+	
+	plt.plot(abs(x_f))
+	plt.title("x_f")
+	plt.show()
+	
+	plt.plot(abs(ans_Large))
+	plt.title("ans_Large")
+	plt.show()
 	
 	
 	for i in range(n):
@@ -275,8 +297,8 @@ def main():
 			TOLERANCE_EST = experiment_parameters['tolerance_est']
 		
 		
-		BB_loc = BCST_LOC*np.sqrt( (n*k) /np.log2(n) ) 
-		BB_est = BCST_EST*np.sqrt( (n*k)/np.log2(n) ) 
+		BB_loc = math.floor( BCST_LOC*np.sqrt( (n*k) /np.log2(n) ) )
+		BB_est = math.floor( BCST_EST*np.sqrt( (n*k)/np.log2(n) ) )
 		
 		
 		#print("BB_loc: %4.5f" % BB_loc)

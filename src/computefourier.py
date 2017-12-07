@@ -3,7 +3,8 @@ import cmath
 import numpy as np
 from scipy import fftpack
 from scipy.fftpack import fft, fftshift, ifft
-
+from utils import *
+from filters import *
 
 def Comb_Filt(origx, n, num, W_Comb):
 	# randomly samples W_Comb elements from input array. Then performs fft on it and finds the largest frequencies. 
@@ -43,12 +44,7 @@ def Comb_Filt(origx, n, num, W_Comb):
 	return Comb_Approved
 
 
-
-
-
-
 def inner_loop_locate(origx, n, current_filter, num, B, a, ai, b):
-	# inner_loop_locate(origx, n, current_filter, num, current_B, a, ai, b)
 	
 	if (n % B):
 		print("Warning: n is not divisible by B")
@@ -63,21 +59,10 @@ def inner_loop_locate(origx, n, current_filter, num, B, a, ai, b):
 		
 		
 	
-	#plt.plot(abs(x_sampt))
-	#plt.title("subs t")
-	#plt.show()
-	
-	
 	x_samp_i = fftpack.fft(x_sampt, B)
-	
 	samples = np.power( np.absolute(x_samp_i), 2)
-	
-	plt.plot(samples)
-	plt.show()
-	
 	J = find_largest_indices(num, samples)
-	
-	return x_samp, J
+	return x_samp_i, J
 
 
 
@@ -104,9 +89,6 @@ def inner_loop_filter_regular(J, n, num, B, a, ai, b, loop_threshold, score, hit
 			j = (j+1) %n
 		
 		
-	
-	
-	
 	
 	return hits_found
 
@@ -164,7 +146,7 @@ def inner_loop_filter_Comb(J, n, num, B, a, ai, b, loop_threshold, score, hits, 
 			loc = (locinv + permuted_approved[j][1])%n
 			score[loc] += 1
 			
-			if(score[loc]==loop_threshold)
+			if(score[loc]==loop_threshold):
 				hits[hits_found]=loc
 				hits_found +=1
 			
@@ -194,9 +176,6 @@ def estimate_values(hits, hits_found, x_samp, loops, n, permute, B, B2, filter_l
 	
 	ans = {}
 	values = np.zeros((2, loops), dtype=float)
-	
-	
-	
 	
 	for i in range(hits_found):
 		
@@ -289,6 +268,7 @@ def outer_loop(origx,n,filter_loc,filter_est,B2,num,B,W_Comb,Comb_loops,loop_thr
 	hits_found = 0
 	
 	hits = np.zeros(n, dtype=int)
+	score = np.zeros(n, dtype = int)
 	num_Comb = num
 	##Comb_Approved = np.zeros(Comb_loops*num, dtype = int)
 	Comb_Approved = []
@@ -363,13 +343,14 @@ def outer_loop(origx,n,filter_loc,filter_est,B2,num,B,W_Comb,Comb_loops,loop_thr
 		x_samp.append(x_samp_i)
 		
 		
+		
 		if (perform_location):
 			if (ALG_TYPE == 1):
 				
 				#inner_loop_filter_regular(J, n, num, cur_B, a, ai, b, loop_threshold, score, hits, hits_found, G_T)
-				hits_found = inner_loop_filter_regular(J, n, num, cur_B, a, ai, b, loop_threshold, score, hits, hits_found)
+				hits_found = inner_loop_filter_regular(J, n, num, current_B, a, ai, b, loop_threshold, score, hits, hits_found)
 			else:
-				#inner_loop_filter_Comb(J, n, num, cur_B, a, ai, b, loop_threshold, score, hits, hits_found, G_T, Comb_Approved, num_Comb, W_Comb)
+				hits_found = inner_loop_filter_Comb(J, n, num, current_B, a, ai, b, loop_threshold, score, hits, hits_found, G_T, Comb_Approved, num_Comb, W_Comb)
 				
 			
 			
@@ -380,7 +361,7 @@ def outer_loop(origx,n,filter_loc,filter_est,B2,num,B,W_Comb,Comb_loops,loop_thr
 		
 		
 	
-	
+	x_samp = np.array(x_samp)
 	
 	
 	ans = estimate_values(hits, hits_found, x_samp,  loops, n, permute, B, B2, filter_loc, filter_est, location_loops)

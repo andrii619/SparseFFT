@@ -3,6 +3,8 @@ import argparse
 import numpy as np
 from filters import *
 from utils import *
+from computefourier import *
+
 
 # Default parameter values that can be changed via command line
 
@@ -86,6 +88,45 @@ def run_experiment(x,x_f,large_freq,k,n,lobefrac_loc,tolerance_loc,b_loc,B_loc,B
 	
 	
 	ans = outer_loop(x, n, filter_loc, filter_est, B_est, B_thresh, B_loc, W_Comb, comb_loops, threshold_loops, loc_loops, loc_loops + est_loops, ALG_TYPE)
+	
+	
+	
+	num_candidates = len(ans)
+	candidates = np.zeros((num_candidates, 2))
+	x_f_Large = np.zeros(n, dtype=complex)
+	ans_Large = np.zeros(n, dtype = complex)
+	counter = 0
+	ERROR = 0.0
+	
+	for key in ans:
+		
+		value = ans[key]
+		
+		candidates[counter][0] = abs(key)
+		candidates[counter][1] = abs(value)
+		
+		counter += 1
+	
+	
+	for i in range(k):
+		x_f_Large[large_freq[i]]=x_f[large_freq[i]]
+	
+	
+	
+	idx_largest = find_largest_indices(k, candidates[:,1])
+	keys = np.array(candidates[idx_largest][:,0], dtype=int)
+	values = candidates[idx_largest][:,1]
+	
+	for key in keys:
+		ans_Large[key] = ans[key]
+	
+	
+	for i in range(n):
+		ERROR += abs(ans_Large[i] - x_f_Large[i])
+	
+	
+	print("ERROR: %3.6f" % ERROR)
+	
 	
 	
 

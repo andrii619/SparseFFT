@@ -259,27 +259,27 @@ def make_multiple(x, n, b):
 
 
 
-n = 8192
-k=10
-Bcst_loc =2
-tolerance_loc =1e-8
-BB_loc = math.floor( Bcst_loc*np.sqrt( (n*k) /np.log2(n) ) )
-lobefrac_loc = 0.5/BB_loc
-filter_t = chebyshev_window(lobefrac_loc, tolerance_loc)
-w_loc = filter_t.shape[0]
+#n = 8192
+#k=10
+#Bcst_loc =2
+#tolerance_loc =1e-8
+#BB_loc = math.floor( Bcst_loc*np.sqrt( (n*k) /np.log2(n) ) )
+#lobefrac_loc = 0.5/BB_loc
+#filter_t = chebyshev_window(lobefrac_loc, tolerance_loc)
+#w_loc = filter_t.shape[0]
 
-b_loc = int(1.2*1.1*(n/BB_loc))
+#b_loc = int(1.2*1.1*(n/BB_loc))
 
 
-filter_loc = make_multiple(filter_t, n, b_loc)
+#filter_loc = make_multiple(filter_t, n, b_loc)
 
 #plt.plot(abs(filter_loc.sig_t))
 #plt.show()
 
-for l in range(w_loc):
-	
-	print("filt[%d] = %3.8f" %(l, filter_loc.sig_t[l].real*1000.0))
-	
+#for l in range(w_loc):
+#	
+#	print("filt[%d] = %3.8f" %(l, filter_loc.sig_t[l].real*1000.0))
+#	
 
 
 

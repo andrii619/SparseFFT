@@ -4,8 +4,8 @@ import numpy as np
 from filters import *
 from utils import *
 from computefourier import *
-
-
+import time
+import timeit
 # Default parameter values that can be changed via command line
 
 GRAPH_TYPE = 1
@@ -13,9 +13,9 @@ REPETITIONS = 1
 VERBOSE = True
 ALG_TYPE = 1
 
-DEBUG = True
+DEBUG = False
 VISUALIZE = True
-
+GENERATE_PLOTS = True
 #BCST_LOC = 1
 #BCST_EST = 1
 #COMB_CST = 2
@@ -36,7 +36,6 @@ def run_experiment(x,x_f,large_freq,k,n,lobefrac_loc,tolerance_loc,b_loc,B_loc,B
 	
 	#run_experiment(x,x_f,large_freq,k,n,LOBEFRAC_LOC,TOLERANCE_LOC,b_loc,B_loc,B_thresh,LOC_LOOPS,THRESHOLD_LOOPS,LOBEFRAC_EST,TOLERANCE_EST,
 	#					b_est,B_est,EST_LOOPS,W_Comb,COMB_LOOPS)
-	
 	
 	if(DEBUG):
 		print("0: n: %d" % n)
@@ -86,10 +85,10 @@ def run_experiment(x,x_f,large_freq,k,n,lobefrac_loc,tolerance_loc,b_loc,B_loc,B
 		
 	
 	
-	
+	startTime = time.clock()
 	ans = outer_loop(x, n, filter_loc, filter_est, B_est, B_thresh, B_loc, W_Comb, comb_loops, threshold_loops, loc_loops, loc_loops + est_loops, ALG_TYPE)
-	
-	
+	endTime = time.clock()
+	t = endTime - startTime
 	
 	
 	num_candidates = len(ans)
@@ -133,24 +132,57 @@ def run_experiment(x,x_f,large_freq,k,n,lobefrac_loc,tolerance_loc,b_loc,B_loc,B
 		key = int(candidates[num_candidates - k + l][1])
 		ans_Large[key] = ans[key]
 	
-	
-	plt.plot(abs(x_f))
-	plt.title("x_f")
-	plt.show()
-	
-	plt.plot(abs(ans_Large))
-	plt.title("ans_Large")
-	plt.show()
+	if(DEBUG):
+		plt.plot(abs(x_f))
+		plt.title("x_f")
+		plt.show()
+		
+		plt.plot(abs(ans_Large))
+		plt.title("ans_Large")
+		plt.show()
 	
 	
 	for i in range(n):
 		ERROR += abs(ans_Large[i] - x_f_Large[i])
 	
 	
-	print("ERROR: %3.6f" % ERROR)
+	print("Experiment N= %d, k=%d, ERROR = %3.9f, ERROR per entry = %3.9f" % (n,k,ERROR, ERROR/k))
+	
+	
+	err_vec = np.sqrt( np.power(np.subtract(np.absolute(ans_Large), np.absolute(x_f_Large)), 2) )
+	
+	if(GENERATE_PLOTS):
+		
+		# add N, k to plot title
+		
+		fig, ax = plt.subplots(nrows=2, ncols=2)
+		
+		plt.subplot(2, 2, 1)
+		plt.title("Signal Time Domain")
+		plt.plot(abs(x))
+		
+		plt.subplot(2, 2, 2)
+		plt.title("DFT Signal")
+		plt.plot(abs(x_f))
+		
+		plt.subplot(2, 2, 3)
+		plt.title("Sparce FFT of The Signal")
+		plt.plot(abs(ans_Large))
+		
+		plt.subplot(2, 2, 4)
+		plt.title("Error Vector")
+		plt.plot(err_vec)
+		
+		plt.suptitle("Sparse FFT: N=" + str(n)+", k=" +str(k))
+		plt.show()
+		
+		
+		
+		
 	
 	
 	
+	return t
 
 
 
@@ -216,7 +248,7 @@ def main():
 		
 	
 	
-	N_vec = np.array([8192, 16384, 32768, 65536], dtype=np.int)
+	N_vec = np.array([8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576], dtype=np.int)
 	#N_vec = np.array([8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304, 8388608, 16777216])
 	K_vec = np.array([50, 100, 200, 500, 1000, 2000, 2500, 4000], dtype=np.int)
 	SNR_vec = np.array([-20, -10, -7, -3, 0, 3, 7, 10, 20, 30, 40, 50, 60, 120])
@@ -233,7 +265,7 @@ def main():
 	
 	sFFT_times = np.zeros(length)
 	fft_times = np.zeros(length)
-	sFFT_errors = np.zeros(length)
+	###sFFT_errors = np.zeros(length)
 	
 	snr = 100
 	
@@ -251,7 +283,8 @@ def main():
 			
 			
 		elif(GRAPH_TYPE == 2):
-			n = 4194304;
+			#n = 4194304
+			n = 131072
 			k = K_vec[i]
 			
 			experiment_parameters = get_expermient_vs_K_parameters(k, ALG_TYPE)
@@ -259,9 +292,10 @@ def main():
 			
 			
 		else:
-			n = 4194304
+			#n = 4194304
+			n = 65536
 			k = 50
-			snr = SNR_vec[i]; 
+			snr = SNR_vec[i]
 			experiment_parameters = get_expermient_vs_N_parameters(n, ALG_TYPE)
 			
 			
@@ -316,6 +350,11 @@ def main():
 		
 		W_Comb = floor_to_pow2(COMB_CST*n/B_loc)
 		
+		
+		
+		
+		
+		
 		for j in range(REPETITIONS):
 			
 			x, x_f, large_freq = generate_random_signal(n, k)
@@ -327,24 +366,37 @@ def main():
 				x_f = fftpack.fft(x, n)/n
 				###x_f = x_f[::-1]
 				###x_f = np.divide(x_f, n)
+				print("SNR %d" %snr)
+				print("SNR achieved %4.9f" % snr_achieved)
 				
 				
 			
 			
-			run_experiment(x,x_f,large_freq,k,n,LOBEFRAC_LOC,TOLERANCE_LOC,b_loc,B_loc,B_thresh,LOC_LOOPS,THRESHOLD_LOOPS,LOBEFRAC_EST,TOLERANCE_EST,
+			
+			wrapped = wrapper(fftpack.fft, x, n)
+			fft_time = timeit.timeit(wrapped, number= 1)
+			
+			
+			
+			fft_times[i] += fft_time
+			
+			print("")
+			print("-------------------------------------------------------------------------")
+			
+			sfft_time = run_experiment(x,x_f,large_freq,k,n,LOBEFRAC_LOC,TOLERANCE_LOC,b_loc,B_loc,B_thresh,LOC_LOOPS,THRESHOLD_LOOPS,LOBEFRAC_EST,TOLERANCE_EST,
 						b_est,B_est,EST_LOOPS,W_Comb,COMB_LOOPS)
 			
 			
 			
 			
+			print("Sfft time: %4.9f" % sfft_time)
+			print("FFT Time: %4.9f" % fft_time)
+			print("")
+			print("--------------------------------------------------------------------------")
 			
 			
 			
 			
-			
-			
-			
-			
 		
 		
 		
@@ -355,6 +407,10 @@ def main():
 		
 		
 		
+	
+	
+	
+	fft_times = fft_times / REPETITIONS
 	
 	
 	

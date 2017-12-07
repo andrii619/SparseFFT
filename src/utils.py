@@ -5,7 +5,7 @@ import numpy as np
 from scipy.stats import binom
 from scipy import fftpack
 from scipy.fftpack import fft, fftshift, ifft
-
+import time   
 import matplotlib.pyplot as plt
 
 
@@ -13,7 +13,10 @@ def gcd(a, b):
 	return fractions.gcd(a,b)
 
 
-
+def wrapper(func, *args, **kwargs):
+	def wrapped():
+		return func(*args, **kwargs)
+	return wrapped
 
 
 

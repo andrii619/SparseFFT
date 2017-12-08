@@ -166,7 +166,7 @@ def run_experiment(x,x_f,large_freq,k,n,lobefrac_loc,tolerance_loc,b_loc,B_loc,B
 		plt.plot(abs(x_f), linewidth=0.3)
 		
 		plt.subplot(2, 2, 3)
-		plt.title("Sparce FFT of The Signal")
+		plt.title("Sparse FFT of The Signal")
 		plt.plot(abs(ans_Large), linewidth=0.3)
 		
 		plt.subplot(2, 2, 4)

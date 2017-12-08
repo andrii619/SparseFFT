@@ -18,7 +18,8 @@ Note on runtime of the code: The Sparse fourier transform runtime is compared ag
 vectorized operations. The runtimes of the fft were faster than the fftw which the paper compared against. Since our implementation was not fully vectorized 
 it runs slower than the one in the paper.
 
-
+The plots folder contains the generated plots. The src folder contains all code. The report folder contains the pdf of the report and the presentation
+is in the presentation folder.
 
 
 
